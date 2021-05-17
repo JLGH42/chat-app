@@ -56,6 +56,7 @@ socket.on('message', (msg) => {
     }
     const html = Mustache.render(messageTemplate, props)
     $messages.insertAdjacentHTML('beforeend', html)
+    autoscroll()
 })
 
 socket.on('userLocation', (location) => {
@@ -66,6 +67,7 @@ socket.on('userLocation', (location) => {
     }
     const html = Mustache.render(locationTemplate, props)
     $messages.insertAdjacentHTML('beforeend', html)
+    autoscroll()
 })
 
 socket.on('roomData', ({ room, users }) => {
