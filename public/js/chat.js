@@ -19,36 +19,20 @@ let { username, room } = Qs.parse(location.search.substr(1), { ignoreQueryPrefix
 const autoscroll = () => {
     const $newMessage = $messages.lastElementChild
     const newMessageStyles = getComputedStyle($newMessage)
-    const newMessageMargin = parse.int(newMessageStyles.margin)
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom)
     const $newMessageHeight = $newMessage.offsetHeight + newMessageMargin
 
     const visibleHeight = $messages.offsetHeight
     const containerHeight = $messages.scrollHeight
 
-    const scrollOffset = $messages.scrollTop + $messages.visibleHeight
+    const scrollOffset = $messages.scrollTop + visibleHeight
 
     if (containerHeight - $newMessageHeight <= scrollOffset) {
         $messages.scrollTop = $messages.scrollHeight
     }
 }
 
-$msgForm.addEventListener('submit', (e) => {
-    e.preventDefault()
-    $msgButton.setAttribute('disabled', 'disabled')
-
-    socket.emit('sendMessage', e.target.elements.message.value, (error) => {
-        $msgButton.removeAttribute('disabled')
-        $msgInput.value = ''
-        $msgInput.focus()
-
-        if (error) {
-            return console.log(error)
-        }
-        console.log('Message Delivered')
-    })
-})
 socket.on('message', (msg) => {
-    console.log(msg)
     const props = {
         username: msg.username,
         createdAt: moment(msg.createdAt).format('LT'),
@@ -74,6 +58,22 @@ socket.on('roomData', ({ room, users }) => {
     const props = { room, users }
     const html = Mustache.render(sidebarTemplate, props)
     $sidebar.innerHTML = html
+})
+
+$msgForm.addEventListener('submit', (e) => {
+    e.preventDefault()
+    $msgButton.setAttribute('disabled', 'disabled')
+
+    socket.emit('sendMessage', e.target.elements.message.value, (error) => {
+        $msgButton.removeAttribute('disabled')
+        $msgInput.value = ''
+        $msgInput.focus()
+
+        if (error) {
+            return console.log(error)
+        }
+        console.log('Message Delivered')
+    })
 })
 
 let options = {
